@@ -1,7 +1,14 @@
 import React from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { setSort, setAscdesc } from '../redux/slices/filterSlice';
 
-const Sort = ({ selected, setSelected, ascdesc, setAscdesc }) => {
+const Sort = () => {
+
+  const {sort, ascdesc } = useSelector((state) => state.filter);
+  const dispatch = useDispatch();
+
   const [open, setOpen] = React.useState(false);
+
   const list = [
     { name: 'популярности', sortProperty: 'rating' },
     { name: 'цене', sortProperty: 'price' },
@@ -9,14 +16,16 @@ const Sort = ({ selected, setSelected, ascdesc, setAscdesc }) => {
   ];
 
   const onClickListItem = (index) => {
-    setSelected(index);
+    dispatch(setSort(index));
     setOpen(!open);
   };
 
   return (
     <div className="sort">
       <div className="sort__label">
-        <svg className={`sort__label__triangle ${ascdesc ? '' : 'active'}`} onClick={() => setAscdesc(!ascdesc)}
+        <svg
+          className={`sort__label__triangle ${ascdesc ? '' : 'active'}`}
+          onClick={() => dispatch(setAscdesc(!ascdesc))}
           width="10"
           height="6"
           viewBox="0 0 10 6"
@@ -28,7 +37,7 @@ const Sort = ({ selected, setSelected, ascdesc, setAscdesc }) => {
           />
         </svg>
         <b>Сортировка по:</b>
-        <span onClick={() => setOpen(!open)}>{selected.name}</span>
+        <span onClick={() => setOpen(!open)}>{sort.name}</span>
       </div>
       {open && (
         <div className="sort__popup">
@@ -37,7 +46,7 @@ const Sort = ({ selected, setSelected, ascdesc, setAscdesc }) => {
               <li
                 key={obj.name}
                 onClick={() => onClickListItem(obj)}
-                className={selected.sortProperty === obj.sortProperty ? 'active' : ''}>
+                className={sort.sortProperty === obj.sortProperty ? 'active' : ''}>
                 {obj.name}
               </li>
             ))}
