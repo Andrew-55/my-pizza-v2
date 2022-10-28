@@ -1,10 +1,9 @@
 import React from 'react';
-import axios from 'axios';
 import qs from 'qs';
-import { SearchContext } from '../App';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { setCategoryId, setCurrentPage, setFilters } from '../redux/slices/filterSlice';
+import { selectorSort, setCategoryId, setCurrentPage, setFilters } from '../redux/slices/filterSlice';
+import { fetchPizzas, selectorPizzas } from '../redux/slices/pizzaSlice';
 
 import Categories from '../components/Categories';
 import Pagination from '../components/Pagination';
@@ -16,34 +15,22 @@ import { list as sortList } from '../components/Sort';
 const Home = () => {
   const navigator = useNavigate();
   const dispatch = useDispatch();
-  const { categoryId, sort: sortType, ascdesc, currentPage } = useSelector((state) => state.filter);
+  const { categoryId, sort: sortType, ascdesc, currentPage, searchValue } = useSelector(selectorSort);
+  const {items, status } = useSelector(selectorPizzas);
   const isSearch = React.useRef(false);
   const isMounted = React.useRef(false);
 
-  const { searchValue } = React.useContext(SearchContext);
-
-  const [items, setItems] = React.useState([]);
-  const [isLoading, setIsLoading] = React.useState(true);
   const search = searchValue ? `&search=${searchValue}` : '';
 
   const onChagePage = (number) => {
     dispatch(setCurrentPage(number));
   };
 
-  const axiosPizzas = React.useCallback(() => {
-    setIsLoading(true);
+  const axiosPizzas = React.useCallback(async () => {
 
-    axios
-      .get(
-        `https://6353c277e64783fa82783516.mockapi.io/items?page=${currentPage}&limit=4&${
-          categoryId > 0 ? `category=${categoryId}` : ''
-        }&sortBy=${sortType.sortProperty}&order=${ascdesc ? 'asc' : 'desc'}${search}`,
-      )
-      .then((res) => {
-        setItems(res.data);
-        setIsLoading(false);
-      });
-  }, [categoryId, sortType, ascdesc, search, currentPage]);
+    dispatch(fetchPizzas({categoryId, sortType, ascdesc, currentPage, search}));
+    
+  }, [categoryId, sortType, ascdesc, currentPage, search, dispatch]);
 
   React.useEffect(() => {
     if (isMounted.current) {
@@ -91,7 +78,12 @@ const Home = () => {
         <Sort />
       </div>
       <h2 className="content__title">Все пиццы</h2>
-      <div className="content__items">{isLoading ? skeletons : pizzas}</div>
+      {
+        status === "error" ? (<div className="content__error-info">
+          <h2>Что-то пошло не так 😕</h2>
+          <p>Попробуйте повторить позже</p>
+        </div>) : (<div className="content__items">{status === "loading" ? skeletons : pizzas}</div>)
+      }
       <Pagination currentPage={currentPage} onChangePage={(number) => onChagePage(number)} />
     </div>
   );
