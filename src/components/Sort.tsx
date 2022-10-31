@@ -1,28 +1,36 @@
 import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { setSort, setAscdesc, selectorSort } from '../redux/slices/filterSlice';
+import { useSelector } from 'react-redux';
+import { selectorSort } from '../redux/filter/selectors';
+import { setSort, setAscdesc } from '../redux/filter/slice';
+import { SortPropertyEnum, SortType } from '../redux/filter/types';
+import { useAppDispatch } from '../redux/store';
 
-export const list = [
-  { name: 'популярности', sortProperty: 'rating' },
-  { name: 'цене', sortProperty: 'price' },
-  { name: 'алфавиту', sortProperty: 'title' },
+type PopupClick = MouseEvent & {
+  path: Node[];
+};
+
+export const list: SortType[] = [
+  { name: 'популярности', sortProperty: SortPropertyEnum.RATING },
+  { name: 'цене', sortProperty: SortPropertyEnum.PRICE },
+  { name: 'алфавиту', sortProperty: SortPropertyEnum.TITLE },
 ];
 
-const Sort = () => {
-  const { sort, ascdesc } = useSelector(selectorSort);
-  const dispatch = useDispatch();
-  const sortRef = React.useRef();
+const Sort: React.FC = React.memo(() => {
+  const { sortType: sort, ascdesc } = useSelector(selectorSort);
+  const dispatch = useAppDispatch();
+  const sortRef = React.useRef<HTMLDivElement>(null);
 
   const [open, setOpen] = React.useState(false);
 
-  const onClickListItem = (index) => {
+  const onClickListItem = (index: SortType) => {
     dispatch(setSort(index));
     setOpen(!open);
   };
 
   React.useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (!event.path.includes(sortRef.current)) {
+    const handleClickOutside = (event: MouseEvent) => {
+      const _event = event as PopupClick;
+      if (sortRef.current && !_event.path.includes(sortRef.current)) {
         setOpen(false);
       }
     };
@@ -66,6 +74,6 @@ const Sort = () => {
       )}
     </div>
   );
-};
+});
 
 export default Sort;

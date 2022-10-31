@@ -2,13 +2,24 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import CartItem from '../components/CartItem';
-import { clearItems, selectorCart } from '../redux/slices/cartSlice';
+import { clearItems} from '../redux/cart/slice';
 import CartEmpty from '../components/CartEmpty';
+import { selectorCart } from '../redux/cart/selectors';
 
-export const Cart = () => {
+type CartItemProps = {
+  id: string;
+  title: string;
+  type: string;
+  size: number;
+  price: number;
+  count: number;
+  imageUrl: string;
+};
+
+export const Cart: React.FC = () => {
   const dispatch = useDispatch();
   const {items, totalPrice} = useSelector(selectorCart);
-  const totalCount  = items.reduce((sum, item) => sum + item.count, 0)
+  const totalCount  = items.reduce((sum:number, item:CartItemProps) => sum + item.count, 0)
 
   const onClickClear = () =>{
     if(window.confirm("Вы хотите очистить корзину?"))
@@ -96,7 +107,7 @@ export const Cart = () => {
           </div>
         </div>
         <div className="content__items">
-          {items.map((item) => (
+          {items.map((item:CartItemProps) => (
             <CartItem key={item.id} {...item}/>
           ))}
         </div>

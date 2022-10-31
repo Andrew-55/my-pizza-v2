@@ -1,19 +1,29 @@
 import React from 'react';
-import { useDispatch } from 'react-redux';
-import { addItem, minusItem, removeItem } from '../redux/slices/cartSlice';
+import { addItem, minusItem, removeItem } from '../redux/cart/slice';
+import { CartItemType } from '../redux/cart/types';
+import { useAppDispatch } from '../redux/store';
 
-const CartItem = ({ id, title, type, size, price, count, imageUrl }) => {
-  const dispatch = useDispatch();
-  const onClickPlus = (id) => {
-    dispatch(addItem({id}))
-  }
-  const onClickMinus = (id) => {
-    dispatch(minusItem(id))
-  }
-  const onClickRemove = (id) =>{
-    if(window.confirm("Вы хотите удалить товар?"))
-    dispatch(removeItem(id))
-  }
+type CartItemProps = {
+  id: string;
+  title: string;
+  type: string;
+  size: number;
+  price: number;
+  count: number;
+  imageUrl: string;
+};
+
+const CartItem: React.FC<CartItemProps> = ({ id, title, type, size, price, count, imageUrl }) => {
+  const dispatch = useAppDispatch();
+  const onClickPlus = (id: string) => {
+    dispatch(addItem({ id } as CartItemType));
+  };
+  const onClickMinus = (id: string) => {
+    dispatch(minusItem(id));
+  };
+  const onClickRemove = (id: string) => {
+    if (window.confirm('Вы хотите удалить товар?')) dispatch(removeItem(id));
+  };
 
   return (
     <div className="cart__item">
@@ -22,10 +32,15 @@ const CartItem = ({ id, title, type, size, price, count, imageUrl }) => {
       </div>
       <div className="cart__item-info">
         <h3>{title}</h3>
-        <p>{type}, {size} см.</p>
+        <p>
+          {type}, {size} см.
+        </p>
       </div>
       <div className="cart__item-count">
-        <div onClick={() => onClickMinus(id)} className="button button--outline button--circle cart__item-count-minus">
+        <button
+          disabled={count === 1}
+          onClick={() => onClickMinus(id)}
+          className="button button--outline button--circle cart__item-count-minus">
           <svg
             width="10"
             height="10"
@@ -41,9 +56,11 @@ const CartItem = ({ id, title, type, size, price, count, imageUrl }) => {
               fill="#EB5A1E"
             />
           </svg>
-        </div>
+        </button>
         <b>{count}</b>
-        <div onClick={() => onClickPlus(id)} className="button button--outline button--circle cart__item-count-plus">
+        <button
+          onClick={() => onClickPlus(id)}
+          className="button button--outline button--circle cart__item-count-plus">
           <svg
             width="10"
             height="10"
@@ -59,7 +76,7 @@ const CartItem = ({ id, title, type, size, price, count, imageUrl }) => {
               fill="#EB5A1E"
             />
           </svg>
-        </div>
+        </button>
       </div>
       <div className="cart__item-price">
         <b>{price * count} ₽</b>

@@ -1,11 +1,24 @@
 import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { addItem, selectorCartItemById } from '../../redux/slices/cartSlice';
+import { useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
+import { selectorCartItemById } from '../../redux/cart/selectors';
+import { addItem } from '../../redux/cart/slice';
+import { CartItemType } from '../../redux/cart/types';
+import { useAppDispatch } from '../../redux/store';
+
+type PizzaBlockProps = {
+  id: string;
+  title: string;
+  price: number;
+  imageUrl: string;
+  sizes: number[];
+  types: number[];
+};
 
 const typeNames = ['тонкое', 'тродиционное'];
 
-const PizzaBlock = ({ id, title, price, imageUrl, sizes, types }) => {
-  const dispatch = useDispatch();
+const PizzaBlock: React.FC<PizzaBlockProps> = ({ id, title, price, imageUrl, sizes, types }) => {
+  const dispatch = useAppDispatch();
   const cartItem = useSelector(selectorCartItemById(id));
   const [activeType, setActiveType] = React.useState(0);
   const [activeSize, setActiveSize] = React.useState(0);
@@ -13,21 +26,24 @@ const PizzaBlock = ({ id, title, price, imageUrl, sizes, types }) => {
   const addedCount = cartItem ? cartItem.count : 0;
 
   const onclickAdd = () => {
-    const item = {
+    const item: CartItemType = {
       id,
       title,
       price,
       imageUrl,
       type: typeNames[activeType],
       size: sizes[activeSize],
+      count: 0,
     };
     dispatch(addItem(item));
   };
 
   return (
     <div className="pizza-block">
-      <img className="pizza-block__image" src={imageUrl} alt="Pizza" />
-      <h4 className="pizza-block__title">{title}</h4>
+      <Link to={`pizzas/${id}`} >
+        <img className="pizza-block__image" src={imageUrl} alt="Pizza" />
+        <h4 className="pizza-block__title">{title}</h4>
+      </Link>
       <div className="pizza-block__selector">
         <ul>
           {types.map((item) => (

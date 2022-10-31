@@ -1,9 +1,12 @@
 import React from 'react';
 
-const Categories = ({activeIndex, onClickCategory}) => {
-  // const [activeIndex, setActiveIndex] = React.useState(0);
+type CategoriesProps = {
+  activeIndex:number;
+  onClickCategory: (i: number) => void;
+}
+const categories = ['Все', 'Мясные', 'Вегетарианская', 'Гриль', 'Острые', 'Закрытые'];
 
-  const categories = ['Все', 'Мясные', 'Вегетарианская', 'Гриль', 'Острые', 'Закрытые'];
+const Categories: React.FC<CategoriesProps> = React.memo(({activeIndex, onClickCategory}) => {
 
   return (
     <div className="categories">
@@ -16,6 +19,6 @@ const Categories = ({activeIndex, onClickCategory}) => {
       </ul>
     </div>
   );
-};
+})
 
 export default Categories;
